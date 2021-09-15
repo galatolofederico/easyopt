@@ -34,7 +34,8 @@ def agent(args):
     assert storage is not None
     
     study = optuna.load_study(study_name=args.name, storage=storage)
-    optimize(study)
+    while True:
+        optimize(study)
 
 def create(args):
     if not os.path.exists(args.config):

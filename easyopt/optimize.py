@@ -57,6 +57,5 @@ def optimize(study):
             if data["command"] == "report":
                 trial.report(data["value"], step=global_step)
                 global_step += 1
-            
 
     study.optimize(objective, n_trials=1)
