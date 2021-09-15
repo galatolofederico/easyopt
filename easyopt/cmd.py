@@ -15,8 +15,22 @@ def die(str):
     sys.exit(1)
 
 def agent(args):
-    pass
-
+    storage = None
+    if args.storage != "":
+        storage = args.storage
+    else:
+        if not os.path.exists(args.config):
+            die(f"Config file {args.config} do not exists. Create a config file or specify a storage using --storage")
+        else:
+            config = yaml.load(open(args.config, "r"), Loader=yaml.CLoader)
+            if "storage" not in config and args.storage == "":
+                die("You have to specify a 'storage' using the config file or using --storage. You can use any SQLAlchemy storage: https://docs.sqlalchemy.org/en/14/core/engines.html#sqlalchemy.create_engine")
+            else:
+                storage = config["storage"]
+    
+    assert storage is not None
+    study = optuna.load_study(study_name=args.name, storage=storage)
+    print(study)
 
 def create(args):
     if not os.path.exists(args.config):
