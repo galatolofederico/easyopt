@@ -14,7 +14,6 @@ def die(str):
     print_color(str, "RED")
     sys.exit(1)
 
-
 def agent(args):
     pass
 
@@ -25,8 +24,11 @@ def create(args):
 
     config = yaml.load(open(args.config, "r"), Loader=yaml.CLoader)
 
-    if "storage" not in config:
-        die("You have to specify a 'storage'. You can use any SQLAlchemy storage: https://docs.sqlalchemy.org/en/14/core/engines.html#sqlalchemy.create_engine")
+    if "storage" not in config and args.storage == "":
+        die("You have to specify a 'storage' using the config file or using --storage. You can use any SQLAlchemy storage: https://docs.sqlalchemy.org/en/14/core/engines.html#sqlalchemy.create_engine")
+    if args.storage != "" and "storage" in config:
+        print_color("Overriding storage using CLI argument", "YELLOW")
+        config["storage"] = args.storage
 
     if "direction" not in config:
         print_color("Optimization direction ('direction') not specified, assuming 'minimize'", "YELLOW")
@@ -68,8 +70,10 @@ def main():
     parser = argparse.ArgumentParser()
 
     parser.add_argument("command", metavar="command", type=str, choices=["create", "agent"], help="Command to execute")
-    parser.add_argument("name", type=str, nargs="?", help="Study name ")
+    parser.add_argument("name", type=str, nargs="?", help="Study name")
+
     parser.add_argument("--config", type=str, default="./easyopt.yml")
+    parser.add_argument("--storage", type=str, default="")
 
     args = parser.parse_args()
 
