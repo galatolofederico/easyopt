@@ -3,7 +3,7 @@ import easyopt
 import numpy as np
 
 from sklearn.neural_network import MLPClassifier
-from sklearn.datasets import make_classification
+from sklearn import datasets
 from sklearn.model_selection import train_test_split
 
 parser = argparse.ArgumentParser()
@@ -15,7 +15,11 @@ parser.add_argument("--epochs", type=int, default=100)
 
 args = parser.parse_args()
 
-X, y = make_classification(n_samples=200, random_state=1)
+iris = datasets.load_iris()
+
+X = iris.data
+y = iris.target
+
 X_train, X_test, y_train, y_test = train_test_split(X, y, stratify=y, random_state=1)
 X_test, X_val, y_test, y_val = train_test_split(X_train, y_train, random_state=1, train_size=0.5)
 

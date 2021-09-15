@@ -3,6 +3,7 @@ storage: sqlite:////tmp/easyopt-nn-classifer.db
 sampler: TPESampler
 pruner: SuccessiveHalvingPruner
 direction: maximize
+replicas: 5
 parameters:
   hidden-layer-l1:
     distribution: int
