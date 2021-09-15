@@ -1,4 +1,9 @@
+import os
+import json
 import inspect
+import uuid
+import socket
+import subprocess
 import optuna
 
 def sample_parameters(trial, config):
@@ -30,6 +35,23 @@ def optimize(study):
         command_variables = build_parameters_strings(parameters)
         
         command = config["command"].format(**command_variables)
+        socket_file = f"/tmp/{uuid.uuid4()}"
         
+        server = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+        server.bind(socket_file)
+
+        env = os.environ.copy()
+        env["EASYOPT_SOCKET"] = socket_file
+
+        process = subprocess.Popen(command.split(" "), env=env)
+        
+        while True:
+            server.listen(1)
+            conn, addr = server.accept()
+            datagram = conn.recv(10*1024)
+            data = json.loads(datagram)
+            
+            if data["command"] == "objective":
+                return data["value"]
 
     study.optimize(objective, n_trials=1)
