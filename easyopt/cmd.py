@@ -76,13 +76,14 @@ def create(args):
         for parameter, parameters_args in config["parameters"].items():
             if "distribution" not in parameters_args:
                 die("Every parameter must have a 'distribution'")
-            distribution = parameters_args.pop("distribution")
+            parameters_args_copy = parameters_args.copy()
+            distribution = parameters_args_copy.pop("distribution")
             optuna_func = "suggest_"+distribution
             if optuna_func not in dir(optuna.Trial):
                 die(f"Unknown distribution {distribution}. Available distribution are the suggest_ functions here: https://optuna.readthedocs.io/en/stable/reference/generated/optuna.trial.Trial.html#optuna.trial.Trial")
             optuna_func_args = inspect.getfullargspec(getattr(optuna.Trial, optuna_func)).args
             
-            for parameters_arg in parameters_args:
+            for parameters_arg in parameters_args_copy:
                 if parameters_arg not in optuna_func_args:
                     die(f"Unknown argument {parameters_arg} for function {optuna_func}. Check documentation here: https://optuna.readthedocs.io/en/stable/reference/generated/optuna.trial.Trial.html#optuna.trial.Trial")
 
