@@ -2,10 +2,13 @@ import argparse
 import os
 import uuid
 import sys
+import inspect
 
 import yaml
 import optuna
 import colorama
+
+from easyopt.optimize import optimize
 
 def print_color(str, color):
     print(getattr(colorama.Fore, color)+str+colorama.Style.RESET_ALL)
@@ -29,8 +32,9 @@ def agent(args):
                 storage = config["storage"]
     
     assert storage is not None
+    
     study = optuna.load_study(study_name=args.name, storage=storage)
-    print(study)
+    optimize(study)
 
 def create(args):
     if not os.path.exists(args.config):
@@ -66,6 +70,22 @@ def create(args):
         else:
             pruner = getattr(optuna.pruners, config["pruner"])()
     
+    if "parameters" not in config:
+        die("You have to specify parameters to optimze in the config file")
+    else:
+        for parameter, parameters_args in config["parameters"].items():
+            if "distribution" not in parameters_args:
+                die("Every parameter must have a 'distribution'")
+            distribution = parameters_args.pop("distribution")
+            optuna_func = "suggest_"+distribution
+            if optuna_func not in dir(optuna.Trial):
+                die(f"Unknown distribution {distribution}. Available distribution are the suggest_ functions here: https://optuna.readthedocs.io/en/stable/reference/generated/optuna.trial.Trial.html#optuna.trial.Trial")
+            optuna_func_args = inspect.getfullargspec(getattr(optuna.Trial, optuna_func)).args
+            
+            for parameters_arg in parameters_args:
+                if parameters_arg not in optuna_func_args:
+                    die(f"Unknown argument {parameters_arg} for function {optuna_func}. Check documentation here: https://optuna.readthedocs.io/en/stable/reference/generated/optuna.trial.Trial.html#optuna.trial.Trial")
+
 
     study = optuna.create_study(
         study_name=args.name,
