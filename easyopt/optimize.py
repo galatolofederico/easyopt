@@ -48,12 +48,19 @@ def optimize(study):
         process = subprocess.Popen(command.split(" "), env=env)
         
         global_step = 1
+        results = []
         server.listen(1)
         conn, addr = server.accept()
         while True:
             data = recv_object(conn)
             if data["command"] == "objective":
-                return data["value"]
+                results.append(data["value"])
+                process.wait()
+                if len(results) >= config["replicas"]:
+                    return sum(results)/len(results)
+                else:
+                    process = subprocess.Popen(command.split(" "), env=env)
+                    conn, addr = server.accept()
             if data["command"] == "report":
                 trial.report(data["value"], step=global_step)
                 global_step += 1
