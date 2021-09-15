@@ -2,6 +2,7 @@ command: python train.py {args}
 storage: sqlite:////tmp/easyopt-nn-classifer.db
 sampler: TPESampler
 pruner: SuccessiveHalvingPruner
+direction: maximize
 parameters:
   hidden-layer-l1:
     distribution: int

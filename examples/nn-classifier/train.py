@@ -27,8 +27,11 @@ clf = MLPClassifier(
 
 for epoch in range(0, args.epochs):
     clf.partial_fit(X_train, y_train, np.unique(y))
-    val_score = clf.score(X_val, y_val)
-    easyopt.report(val_score)
+    if epoch % 5 == 0:
+        val_score = clf.score(X_val, y_val)
+        easyopt.report(val_score)
+        if easyopt.should_prune():
+            break
 
 val_score = clf.score(X_val, y_val)
 easyopt.objective(val_score)
