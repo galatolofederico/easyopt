@@ -1,0 +1,25 @@
+command: python train.py {args}
+storage: sqlite:////tmp/easyopt-nn-classifer.db
+sampler: TPESampler
+pruner: SuccessiveHalvingPruner
+parameters:
+  hidden-layer-l1:
+    distribution: int
+    low: 10
+    high: 200
+  hidden-layer-l1:
+    distribution: int
+    low: 10
+    high: 200
+  epochs:
+    distribution: categorical
+    choices:
+      - 10
+      - 50
+      - 100
+      - 200
+  lr:
+    distribution: loguniform
+    low: 1e-5
+    high: 1e-1
+  
