@@ -16,3 +16,10 @@ def objective(value):
     global _easyopt_socket
     init_socket()
     _easyopt_socket.send(json.dumps(dict(command="objective", value=value)).encode("utf-8"))
+
+def report(value):
+    if "EASYOPT_SOCKET" not in os.environ:
+        return
+    global _easyopt_socket
+    init_socket()
+    _easyopt_socket.send(json.dumps(dict(command="report", value=value)).encode("utf-8"))

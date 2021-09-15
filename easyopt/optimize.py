@@ -45,6 +45,7 @@ def optimize(study):
 
         process = subprocess.Popen(command.split(" "), env=env)
         
+        global_step = 1
         while True:
             server.listen(1)
             conn, addr = server.accept()
@@ -53,5 +54,9 @@ def optimize(study):
             
             if data["command"] == "objective":
                 return data["value"]
+            if data["command"] == "report":
+                trial.report(data["value"], step=global_step)
+                global_step += 1
+            
 
     study.optimize(objective, n_trials=1)
