@@ -6,6 +6,8 @@ import socket
 import subprocess
 import optuna
 
+from easyopt.utils import recv_object, send_object
+
 def sample_parameters(trial, config):
     parameters = dict()
     for parameter, parameter_args in config["parameters"].items():
@@ -49,14 +51,14 @@ def optimize(study):
         server.listen(1)
         conn, addr = server.accept()
         while True:
-            datagram = conn.recv(10*1024)
-            data = json.loads(datagram)
-            print(data)
+            data = recv_object(conn)
             if data["command"] == "objective":
                 return data["value"]
             if data["command"] == "report":
                 trial.report(data["value"], step=global_step)
-                print("HELO")
                 global_step += 1
+            if data["command"] == "should_prune":
+                reply = int(trial.should_prune())
+                send_object(dict(reply=reply), conn)
 
     study.optimize(objective, n_trials=1)

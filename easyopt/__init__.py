@@ -1,6 +1,7 @@
 import os
-import json
 import socket
+
+from easyopt.utils import recv_object, send_object
 
 _easyopt_socket = None
 
@@ -15,11 +16,20 @@ def objective(value):
         return
     global _easyopt_socket
     init_socket()
-    _easyopt_socket.send(json.dumps(dict(command="objective", value=value)).encode("utf-8"))
+    send_object(dict(command="objective", value=value), _easyopt_socket)
 
 def report(value):
     if "EASYOPT_SOCKET" not in os.environ:
         return
     global _easyopt_socket
     init_socket()
-    _easyopt_socket.send(json.dumps(dict(command="report", value=value)).encode("utf-8"))
+    send_object(dict(command="report", value=value), _easyopt_socket)
+
+def should_prune():
+    if "EASYOPT_SOCKET" not in os.environ:
+        return
+    global _easyopt_socket
+    init_socket()
+    send_object(dict(command="should_prune"), _easyopt_socket)
+    reply = recv_object(_easyopt_socket)
+    return reply["reply"]
