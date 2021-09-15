@@ -1,4 +1,4 @@
-run: python problem.py ${args}
+command: python problem.py {args}
 storage: sqlite:////tmp/easyopt-toy-problem.db
 sampler: TPESampler
 parameters:
