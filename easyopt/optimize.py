@@ -57,6 +57,8 @@ def optimize(study):
                 results.append(data["value"])
                 process.wait()
                 if len(results) >= config["replicas"]:
+                    conn.close()
+                    os.remove(socket_file)
                     return sum(results)/len(results)
                 else:
                     process = subprocess.Popen(command.split(" "), env=env)
