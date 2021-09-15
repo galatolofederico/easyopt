@@ -29,12 +29,18 @@ def main():
         args.name = str(uuid.uuid4())
     if args.command == "agent" and args.name is None:
         die("You must specify a study name to run the agent: easyopt agent <study_name>")
-    
+
+    if args.command == "create":
+        create(args)
+    elif args.command == "agent":
+        agent(args)
+
+def create(args):
     if not os.path.exists(args.config):
         die(f"Config file {args.config} do not exists. Create a easyopt.yml file or specify a config file using --config")
 
     config = yaml.load(open(args.config, "r"), Loader=yaml.CLoader)
-
+    
     if "storage" not in config:
         die("You have to specify a 'storage'. You can use any SQLAlchemy storage: https://docs.sqlalchemy.org/en/14/core/engines.html#sqlalchemy.create_engine")
 
@@ -64,5 +70,7 @@ def main():
         pruner=pruner,
         storage=config["storage"]
     )
+
+    study.set_user_attr("config", config)
 
     print_color(f"Optuna study created with name {args.name}", "GREEN")
