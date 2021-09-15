@@ -1,5 +1,4 @@
 import inspect
-
 import optuna
 
 def sample_parameters(trial, config):
@@ -16,11 +15,21 @@ def sample_parameters(trial, config):
         parameters[parameter] = getattr(trial, optuna_func)(parameter, **args)
         
     return parameters
-    
+
+def build_parameters_strings(parameters):
+    args = " ".join([f"--{k}={v}" for k, v in parameters.items()])
+
+    return dict(
+        args = args
+    )
 
 def optimize(study):
     def objective(trial):
-        parameters = sample_parameters(trial, study.user_attrs["config"])
-        print(parameters)
+        config = study.user_attrs["config"]
+        parameters = sample_parameters(trial, config)
+        command_variables = build_parameters_strings(parameters)
+        
+        command = config["command"].format(**command_variables)
+        
 
     study.optimize(objective, n_trials=1)
