@@ -1,0 +1,13 @@
+run: python problem.py ${args}
+storage: sqlite:////tmp/easyopt-toy-problem.db
+sampler: TPESampler
+goal: maximize
+parameters:
+  x:
+    distribution: uniform
+    low: -10
+    high: 10
+  y:
+    distribution: uniform
+    low: -10
+    high: 10
