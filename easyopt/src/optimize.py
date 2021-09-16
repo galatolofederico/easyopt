@@ -8,7 +8,7 @@ import threading
 import queue
 import optuna
 
-from easyopt.utils import recv_object, send_object
+from easyopt.utils import log
 from easyopt.src.heartbeat import HeartbeatMonitor, HeartbeatException
 from easyopt.src.socketserver import SocketServer
 
@@ -42,6 +42,7 @@ def optimize(study):
         
         command = config["command"].format(**command_variables)
         socket_file = f"/tmp/{uuid.uuid4()}"
+        log(f"[optimize] socket file {socket_file}")
         
         q = queue.Queue()
         server = SocketServer(q, socket_file)
@@ -53,21 +54,24 @@ def optimize(study):
         env["EASYOPT_SOCKET"] = socket_file
 
         process = subprocess.Popen(command.split(" "), env=env)
-        
+        log(f"[optimize] running process {command}")
         global_step = 1
         results = []
         while True:
             data = q.get()
-            print(data)
+            log(f"[optimize] received {data}")
             if data["command"] == "objective":
                 results.append(data["value"])
+                log(f"[optimize] result {data['value']} added, len(results)={len(results)}")
                 process.wait()
+                log(f"[optimize] process terminated")
                 if len(results) >= config["replicas"]:
                     server.stop()
                     os.remove(socket_file)
-
+                    log(f"[optimize] finished runs")
                     return sum(results)/len(results)
                 else:
+                    log(f"[optimize] running process {command}")
                     process = subprocess.Popen(command.split(" "), env=env)
             
             elif data["command"] == "report":
