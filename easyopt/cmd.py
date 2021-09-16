@@ -8,7 +8,8 @@ import yaml
 import optuna
 import colorama
 
-from easyopt.optimize import optimize
+from easyopt.src.optimize import optimize
+from easyopt.src.heartbeat import HeartbeatException
 
 def print_color(str, color):
     print(getattr(colorama.Fore, color)+str+colorama.Style.RESET_ALL)
@@ -35,7 +36,12 @@ def agent(args):
     
     study = optuna.load_study(study_name=args.name, storage=storage)
     while True:
-        optimize(study)
+        try:
+            optimize(study)
+        except HeartbeatException:
+            print_color("Run crashed", "RED")
+        except:
+            raise
 
 def create(args):
     if not os.path.exists(args.config):
@@ -55,7 +61,7 @@ def create(args):
 
     if "replicas" not in config:
         print_color("Number of replicas ('replicas') not specified, assuming 1", "YELLOW")
-        config["replicas"] = "1"
+        config["replicas"] = 1
 
     sampler = None
     if "sampler" in config:
