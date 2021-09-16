@@ -1,4 +1,5 @@
 import argparse
+import random
 import easyopt
 
 parser = argparse.ArgumentParser()
@@ -9,7 +10,7 @@ parser.add_argument("--y", type=float, required=True)
 args = parser.parse_args()
 
 def objective(x, y):
-    if x > 0:
+    if random.random() <= 0.5:
         raise Exception("Crash")
     return x**2 + y**2
 
