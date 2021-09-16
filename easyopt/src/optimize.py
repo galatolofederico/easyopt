@@ -68,6 +68,7 @@ def optimize(study):
                 log(f"[optimize] process terminated")
                 if len(results) >= config["replicas"]:
                     server.stop()
+                    heartbeat_monitor.stop()
                     os.remove(socket_file)
                     log(f"[optimize] finished runs")
                     return sum(results)/len(results)
