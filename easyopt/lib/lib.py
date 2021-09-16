@@ -6,6 +6,10 @@ import time
 from easyopt.utils import recv_object, send_object, log
 
 _easyopt_socket = None
+
+_easyopt_socket_lock = threading.Lock()
+_easyopt_heartbeat_lock = threading.Lock()
+
 _heartbeat_thread = None
 _heartbeat_thread_running = True
 
@@ -14,10 +18,12 @@ def init():
 
 def init_socket():
     global _easyopt_socket
-    if _easyopt_socket is None and "EASYOPT_SOCKET" in os.environ:
-        log("[lib] initializing socket")
-        _easyopt_socket = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
-        _easyopt_socket.connect(os.environ["EASYOPT_SOCKET"])
+    global _easyopt_socket_lock
+    with _easyopt_socket_lock:
+        if _easyopt_socket is None and "EASYOPT_SOCKET" in os.environ:
+            log("[lib] initializing socket")
+            _easyopt_socket = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+            _easyopt_socket.connect(os.environ["EASYOPT_SOCKET"])
 
 
 def init_heartbeat():
@@ -33,9 +39,12 @@ def init_heartbeat():
             return
 
         global _heartbeat_thread
-        _heartbeat_thread = threading.Thread(target=heartbeat)
-        _heartbeat_thread.start()
-        log("[lib] heartbeat_thread started")
+        global _easyopt_heartbeat_lock
+        with _easyopt_heartbeat_lock:
+            if _heartbeat_thread is None:
+                _heartbeat_thread = threading.Thread(target=heartbeat)
+                _heartbeat_thread.start()
+                log("[lib] heartbeat_thread started")
 
 def objective(value):
     if "EASYOPT_SOCKET" not in os.environ:
