@@ -25,7 +25,7 @@ def init_heartbeat():
             global _heartbeat_thread_running
             while _heartbeat_thread_running:
                 init_socket()
-                time.sleep(5)
+                time.sleep(1)
                 send_object(dict(command="heartbeat"), _easyopt_socket)
             return
 
