@@ -148,6 +148,7 @@ parameters:
 
 * `command`: the command to execute to run the experiment.
   * `{args}` will be expanded to `--parameter-1=value-1 --parameter-2=value-2`
+  * `{name}` will be expanded to the study name
 * `storage`: the storage to use for the study. A full list of storages is available [here](https://docs.sqlalchemy.org/en/14/core/engines.html#sqlalchemy.create_engine)
 * `sampler`: the sampler to use. The full list of samplers is available [here](https://optuna.readthedocs.io/en/stable/reference/samplers.html)
 * `pruner`: the pruner to use. The full list of pruners is available [here](https://optuna.readthedocs.io/en/stable/reference/pruners.html)
