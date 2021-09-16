@@ -7,6 +7,9 @@ from easyopt.utils import recv_object, send_object
 
 _easyopt_socket = None
 
+def init():
+    init_heartbeat()
+
 def init_socket():
     global _easyopt_socket
     if _easyopt_socket is None and "EASYOPT_SOCKET" in os.environ:
@@ -17,10 +20,11 @@ def init_socket():
 def init_heartbeat():
     if "EASYOPT_SOCKET" in os.environ:
         def heartbeat():
-            init_socket()
-            send_object(dict(command="heartbeat"), _easyopt_socket)
-            time.sleep(5)
-
+            while True:
+                init_socket()
+                time.sleep(5)
+                send_object(dict(command="heartbeat"), _easyopt_socket)
+            
         _heartbeat_thread = threading.Thread(target=heartbeat)
         _heartbeat_thread.start()
 
