@@ -3,7 +3,7 @@ import socket
 import threading
 import time
 
-from easyopt.utils import recv_object, send_object
+from easyopt.utils import recv_object, send_object, log
 
 _easyopt_socket = None
 _heartbeat_thread = None
@@ -15,6 +15,7 @@ def init():
 def init_socket():
     global _easyopt_socket
     if _easyopt_socket is None and "EASYOPT_SOCKET" in os.environ:
+        log("[lib] initializing socket")
         _easyopt_socket = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
         _easyopt_socket.connect(os.environ["EASYOPT_SOCKET"])
 
@@ -26,12 +27,15 @@ def init_heartbeat():
             while _heartbeat_thread_running:
                 init_socket()
                 time.sleep(1)
+                log(f"[lib] sending hearbeat _heartbeat_thread_running={_heartbeat_thread_running}")
                 send_object(dict(command="heartbeat"), _easyopt_socket)
+            log("[lib] heartbeat_thread terminated")
             return
 
         global _heartbeat_thread
         _heartbeat_thread = threading.Thread(target=heartbeat)
         _heartbeat_thread.start()
+        log("[lib] heartbeat_thread started")
 
 def objective(value):
     if "EASYOPT_SOCKET" not in os.environ:
@@ -43,6 +47,7 @@ def objective(value):
     send_object(dict(command="objective", value=value), _easyopt_socket)
     _heartbeat_thread_running = False
     _heartbeat_thread.join()
+    log("[lib] heartbeat_thread joined")
 
 def report(value):
     if "EASYOPT_SOCKET" not in os.environ:
