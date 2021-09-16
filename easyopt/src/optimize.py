@@ -54,6 +54,7 @@ def optimize(study):
         env["EASYOPT_SOCKET"] = socket_file
 
         process = subprocess.Popen(command.split(" "), env=env)
+        heartbeat_monitor.beat()
         log(f"[optimize] running process {command}")
         global_step = 1
         results = []
@@ -73,6 +74,7 @@ def optimize(study):
                 else:
                     log(f"[optimize] running process {command}")
                     process = subprocess.Popen(command.split(" "), env=env)
+                    heartbeat_monitor.beat()
             
             elif data["command"] == "report":
                 trial.report(data["value"], step=global_step)
