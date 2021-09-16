@@ -54,9 +54,6 @@ def objective(value):
 
     init_socket()
     send_object(dict(command="objective", value=value), _easyopt_socket)
-    _heartbeat_thread_running = False
-    _heartbeat_thread.join()
-    log("[lib] heartbeat_thread joined")
 
 def report(value):
     if "EASYOPT_SOCKET" not in os.environ:
