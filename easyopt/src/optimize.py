@@ -89,6 +89,9 @@ def optimize(study):
                 heartbeat_monitor.beat()
             
             elif data["command"] == "heartbeat_fail":
+                server.stop()
+                heartbeat_monitor.stop()
+                os.remove(socket_file)
                 raise HeartbeatException
 
                 
