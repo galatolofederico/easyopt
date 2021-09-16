@@ -1,5 +1,9 @@
 import json
+import os
 
+def log(msg):
+    if "DEBUG" in os.environ:
+        print(msg)
 
 def recv_until_newline(socket):
     ret = ""
