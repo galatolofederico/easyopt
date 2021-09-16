@@ -39,8 +39,11 @@ def optimize(study):
         config = study.user_attrs["config"]
         parameters = sample_parameters(trial, config)
         command_variables = build_parameters_strings(parameters)
+        env_variables = dict(
+            name=study.study_name
+        )
         
-        command = config["command"].format(**command_variables)
+        command = config["command"].format(**command_variables, **env_variables)
         socket_file = f"/tmp/{uuid.uuid4()}"
         log(f"[optimize] socket file {socket_file}")
         
