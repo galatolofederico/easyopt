@@ -42,7 +42,7 @@ def init_heartbeat():
         global _easyopt_heartbeat_lock
         with _easyopt_heartbeat_lock:
             if _heartbeat_thread is None:
-                _heartbeat_thread = threading.Thread(target=heartbeat)
+                _heartbeat_thread = threading.Thread(target=heartbeat, daemon=True)
                 _heartbeat_thread.start()
                 log("[lib] heartbeat_thread started")
 
