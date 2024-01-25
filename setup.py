@@ -20,7 +20,7 @@ setuptools.setup(
         ],
     },
     install_requires=[
-        "optuna==2.9.1",
+        "optuna==3.5.0",
         "PyYAML==5.4.1",
         "colorama==0.4.4"
     ],
